@@ -6,6 +6,11 @@ var Jumper = cc.Sprite.extend({
         this.x = x;
         this.y = y;
 
+        this.initVariable();
+        this.updateSpritePosition();
+    },
+
+    initVariable: function(){
         this.maxVx = 8;
         this.accX = 0.25;
         this.backAccX = 0.5;
@@ -22,8 +27,6 @@ var Jumper = cc.Sprite.extend({
         this.ground = null;
 
         this.blocks = [];
-
-        this.updateSpritePosition();
     },
 
     updateSpritePosition: function() {
@@ -61,11 +64,15 @@ var Jumper = cc.Sprite.extend({
             if ( ( !this.moveLeft ) && ( !this.moveRight ) ) {
                 this.autoDeaccelerateX();
             } else if ( this.moveRight ) {
-                this.accelerateX( 1 );
+                this.accelerateX( Jumper.ACC.RIGHT );
             } else {
-                this.accelerateX( -1 );
+                this.accelerateX( Jumper.ACC.LEFT );
             }
         }
+        setOutOfScreen();
+    },
+
+    setOutOfScreen: function(){
         this.x += this.vx;
         if ( this.x < 0 ) {
             this.x += screenWidth;
@@ -79,14 +86,22 @@ var Jumper = cc.Sprite.extend({
         if ( this.ground ) {
             this.vy = 0;
             if ( this.jump ) {
-                this.vy = this.jumpV;
-                this.y = this.ground.getTopY() + this.vy;
-                this.ground = null;
+                this.floating();
             }
         } else {
-            this.vy += this.g;
-            this.y += this.vy;
+            this.droping();
         }
+    },
+
+    floating: function(){
+        this.vy = this.jumpV;
+        this.y = this.ground.getTopY() + this.vy;
+        this.ground = null;
+    },
+
+    droping: function(){
+        this.vy += this.g;
+        this.y += this.vy;
     },
 
     isSameDirection: function( dir ) {
@@ -176,4 +191,10 @@ Jumper.KEYMAP = {}
 Jumper.KEYMAP[cc.KEY.left] = 'moveLeft';
 Jumper.KEYMAP[cc.KEY.right] = 'moveRight';
 Jumper.KEYMAP[cc.KEY.up] = 'jump';
+
+Jumper.ACC = {
+    LEFT :-1;
+    RIGHT :1;
+};
+
         

@@ -112,17 +112,18 @@ var Jumper = cc.Sprite.extend({
     accelerateX: function( dir ) {
         if ( this.isSameDirection( dir ) ) {
             this.vx += dir * this.accX;
-            if ( Math.abs( this.vx ) > this.maxVx ) {
-                this.vx = dir * this.maxVx;
-            }
+            checklimit(this.maxVx,dir);
         } else {
-            if ( Math.abs( this.vx ) >= this.backAccX ) {
-                this.vx += dir * this.backAccX;
-            } else {
+            checklimit(this.backAccX,dir);
+            if ( Math.abs( this.vx ) < this.backAccX ) {
                 this.vx = 0;
-            }
         }
     },
+    checklimit: function(max,dir){
+         if ( Math.abs( this.vx ) > max ) {
+                this.vx = dir * max;
+            }
+    }
     
     autoDeaccelerateX: function() {
         if ( Math.abs( this.vx ) < this.accX ) {
@@ -136,11 +137,20 @@ var Jumper = cc.Sprite.extend({
 
     handleCollision: function( oldRect, newRect ) {
         if ( this.ground ) {
-            if ( !this.ground.onTop( newRect ) ) {
-                this.ground = null;
-            }
+           isNotOnTop();
         } else {
-            if ( this.vy <= 0 ) {
+            isOnTop()
+        }
+    },
+
+    isNotOnTop: function(){
+         if ( !this.ground.onTop( newRect ) ) {
+                this.ground = null;
+        }
+    },
+
+    isOnTop: function(){
+        if ( this.vy <= 0 ) {
                 var topBlock = this.findTopBlock( this.blocks,
                                                   oldRect,
                                                   newRect );
@@ -150,7 +160,6 @@ var Jumper = cc.Sprite.extend({
                     this.y = topBlock.getTopY();
                     this.vy = 0;
                 }
-            }
         }
     },
     
